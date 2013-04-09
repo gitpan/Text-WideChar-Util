@@ -18,7 +18,7 @@ our @EXPORT_OK = qw(
                        mbwrap
                );
 
-our $VERSION = '0.01'; # VERSION
+our $VERSION = '0.02'; # VERSION
 
 sub mbswidth_height {
     my $text = shift;
@@ -107,7 +107,8 @@ sub mbpad {
 
     my $w = mbswidth($text);
     if ($is_trunc && $w > $width) {
-        $text = mbtrunc($text, $width);
+        my $res = mbtrunc($text, $width, 1);
+        $text = $res->[0] . ($padchar x ($width-$res->[1]));
     } else {
         if ($which eq 'l') {
             $text = ($padchar x ($width-$w)) . $text;
@@ -169,7 +170,7 @@ Text::WideChar::Util - Routines for text containing wide characters
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 SYNOPSIS
 
