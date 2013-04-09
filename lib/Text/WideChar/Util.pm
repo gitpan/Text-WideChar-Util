@@ -1,0 +1,274 @@
+package Text::WideChar::Util;
+
+use 5.010001;
+use locale;
+use strict;
+use utf8;
+use warnings;
+
+use List::Util qw(max);
+use Text::CharWidth qw(mbswidth);
+
+require Exporter;
+our @ISA       = qw(Exporter);
+our @EXPORT_OK = qw(
+                       mbpad
+                       mbswidth_height
+                       mbtrunc
+                       mbwrap
+               );
+
+our $VERSION = '0.01'; # VERSION
+
+sub mbswidth_height {
+    my $text = shift;
+    my $num_lines = 0;
+    my @lens;
+    for my $e (split /(\r?\n)/, $text) {
+        if ($e =~ /\n/) {
+            $num_lines++;
+            next;
+        }
+        $num_lines = 1 if $num_lines == 0;
+        push @lens, mbswidth($e);
+    }
+    [max(@lens) // 0, $num_lines];
+}
+
+sub mbwrap {
+    my ($text, $width) = @_;
+    $width //= 80;
+
+    my @res;
+    my @p = split /(\s+)/i, $text;
+    my $col = 0;
+    my $i = 0;
+    while (my $p = shift(@p)) {
+        $i++;
+        my $num_nl = 0;
+        my $is_pb; # paragraph break
+        my $is_ws;
+        my $w;
+        #say "D:col=$col, p=$p";
+        if ($p =~ /\A\s/s) {
+            $is_ws++;
+            $num_nl++ while $p =~ s/\r?\n//;
+            if ($num_nl >= 2) {
+                $is_pb++;
+                $w = 0;
+            } else {
+                $p = " ";
+                $w = 1;
+            }
+        } else {
+            $w = mbswidth($p);
+        }
+        $col += $w;
+        #say "D:col=$col, is_pb=${\($is_pb//0)}, is_ws=${\($is_ws//0)}, num_nl=$num_nl";
+
+        if ($is_pb) {
+            push @res, "\n" x $num_nl;
+            $col = 0;
+        } elsif ($col > $width+1) {
+            # remove whitespace at the end of prev line
+            if (@res && $res[-1] eq ' ') {
+                pop @res;
+            }
+
+            push @res, "\n";
+            if ($is_ws) {
+                $col = 0;
+            } else {
+                push @res, $p;
+                $col = $w;
+            }
+        } else {
+            # remove space at the end of text
+            if (@p || !$is_ws) {
+                push @res, $p;
+            } else {
+                if ($num_nl == 1) {
+                    push @res, "\n";
+                }
+            }
+        }
+    }
+    join "", @res;
+}
+
+sub mbpad {
+    my ($text, $width, $which, $padchar, $is_trunc) = @_;
+    if ($which) {
+        $which = substr($which, 0, 1);
+    } else {
+        $which = "r";
+    }
+    $padchar //= " ";
+
+    my $w = mbswidth($text);
+    if ($is_trunc && $w > $width) {
+        $text = mbtrunc($text, $width);
+    } else {
+        if ($which eq 'l') {
+            $text = ($padchar x ($width-$w)) . $text;
+        } elsif ($which eq 'c') {
+            my $n = int(($width-$w)/2);
+            $text = ($padchar x $n) . $text . ($padchar x ($width-$w-$n));
+        } else {
+            $text .= ($padchar x ($width-$w));
+        }
+    }
+    $text;
+}
+
+sub mbtrunc {
+    my ($text, $width, $return_width) = @_;
+
+    my $w = mbswidth($text);
+    die "Invalid argument, width must not be negative" unless $width >= 0;
+    return $text if $w <= $width;
+
+    # perform binary cutting
+    my @res;
+    my $wres = 0; # total width of text in @res
+    my $l = int($w/2); $l = 1 if $l == 0;
+    my $end;
+    while (1) {
+        my $left  = substr($text, 0, $l);
+        my $right = substr($text, $l);
+        my $wl = mbswidth($left);
+        #say "D: left=$left, right=$right, wl=$wl";
+        if ($wres + $wl > $width) {
+            $text = $left;
+        } else {
+            push @res, $left;
+            $wres += $wl;
+            $text = $right;
+        }
+        $l = int(($l+1)/2);
+        last if $l==1 && $end;
+        $end++ if $l==1;
+    }
+    if ($return_width) {
+        return [join("", @res), $wres];
+    } else {
+        return join("", @res);
+    }
+}
+
+1;
+# ABSTRACT: Routines for text containing wide characters
+
+
+__END__
+=pod
+
+=head1 NAME
+
+Text::WideChar::Util - Routines for text containing wide characters
+
+=head1 VERSION
+
+version 0.01
+
+=head1 SYNOPSIS
+
+ use Text::WideChar::Util qw(
+     mbpad mbswidth_height mbtrunc mbwrap);
+
+ # get width as well as number of lines
+ say mbswidth_height("red\n红色"); # => [4, 2]
+
+ # wrap text to a certain column width
+ say mbwrap("....", 40);
+
+ # pad (left, right, center) text to specified column width, handle multilines
+ say mbpad("foo", 10);                          # => "foo       "
+ say mbpad("红色", 10, "left");                 # => "      红色"
+ say mbpad("foo\nbarbaz\n", 10, "center", "."); # => "...foo....\n..barbaz..\n"
+
+ # truncate text to a certain column width
+ say mbtrunc("红色", 2 ); # => "红"
+ say mbtrunc("红色", 3 ); # => "红"
+ say mbtrunc("红red", 3); # => "红r"
+
+=head1 DESCRIPTION
+
+This module provides routines for dealing with text containing wide characters
+(wide meaning occupying more than 1 column width in terminal).
+
+=head1 FUNCTIONS
+
+=head2 mbswidth_height($text) => [INT, INT]
+
+Like L<Text::CharWidth>'s mbswidth(), but also gives height (number of lines).
+For example, C<< mbswidth_height("foobar\nb\n") >> gives [6, 3].
+
+=head2 mbwrap($text, $width) => STR
+
+Wrap text to a specified column width.
+
+C<$width> defaults to 80 if not specified.
+
+Note: currently performance is rather abysmal (~ 1200/s on my Core i5-2400
+3.1GHz desktop for a ~ 1KB of text), so call this routine sparingly ;-).
+
+=head2 mbwrap($text, $width) => STR
+
+Wrap C<$text> to C<$width> columns. It uses mbswidth() instead of Perl's
+length() which works on a per-character basis.
+
+Note: for text which does not have whitespaces between words, like Chinese, you
+will have to separate the words first (e.g. using L<Lingua::ZH::WordSegmenter>).
+The module also currently does not handle whitespace-like characters other than
+ASCII 32 (for example, the Chinese dot 。).
+
+=head2 mbpad($text, $width[, $which[, $padchar[, $truncate]]]) => STR
+
+Return C<$text> padded with C<$padchar> to C<$width> columns. C<$which> is
+either "r" or "right" for padding on the right (the default if not specified),
+"l" or "left" for padding on the right, or "c" or "center" or "centre" for
+left+right padding to center the text.
+
+C<$padchar> is whitespace if not specified. It should be string having the width
+of 1 column.
+
+=head2 mbtrunc($text, $width) => STR
+
+Truncate C<$text> to C<$width> columns. It uses mbswidth() instead of Perl's
+length(), so it can handle wide characters.
+
+Does *not* handle multiple lines.
+
+=head1 FAQ
+
+=head2 How do I truncate or pad to a certain character length (instead of column width)?
+
+You can simply use Perl's substr() which works by character.
+
+=head1 TODOS
+
+=over
+
+=back
+
+=head1 SEE ALSO
+
+L<Text::CharWidth> which provides mbswidth().
+
+L<Text::ANSI::Util> which can also handle text containing wide characters as
+well ANSI escape codes.
+
+=head1 AUTHOR
+
+Steven Haryanto <stevenharyanto@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2013 by Steven Haryanto.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

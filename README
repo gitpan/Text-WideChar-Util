@@ -1,0 +1,90 @@
+NAME
+    Text::WideChar::Util - Routines for text containing wide characters
+
+VERSION
+    version 0.01
+
+SYNOPSIS
+     use Text::WideChar::Util qw(
+         mbpad mbswidth_height mbtrunc mbwrap);
+
+     # get width as well as number of lines
+     say mbswidth_height("red\n红色"); # => [4, 2]
+
+     # wrap text to a certain column width
+     say mbwrap("....", 40);
+
+     # pad (left, right, center) text to specified column width, handle multilines
+     say mbpad("foo", 10);                          # => "foo       "
+     say mbpad("红色", 10, "left");                 # => "      红色"
+     say mbpad("foo\nbarbaz\n", 10, "center", "."); # => "...foo....\n..barbaz..\n"
+
+     # truncate text to a certain column width
+     say mbtrunc("红色", 2 ); # => "红"
+     say mbtrunc("红色", 3 ); # => "红"
+     say mbtrunc("红red", 3); # => "红r"
+
+DESCRIPTION
+    This module provides routines for dealing with text containing wide
+    characters (wide meaning occupying more than 1 column width in
+    terminal).
+
+FUNCTIONS
+  mbswidth_height($text) => [INT, INT]
+    Like Text::CharWidth's mbswidth(), but also gives height (number of
+    lines). For example, "mbswidth_height("foobar\nb\n")" gives [6, 3].
+
+  mbwrap($text, $width) => STR
+    Wrap text to a specified column width.
+
+    $width defaults to 80 if not specified.
+
+    Note: currently performance is rather abysmal (~ 1200/s on my Core
+    i5-2400 3.1GHz desktop for a ~ 1KB of text), so call this routine
+    sparingly ;-).
+
+  mbwrap($text, $width) => STR
+    Wrap $text to $width columns. It uses mbswidth() instead of Perl's
+    length() which works on a per-character basis.
+
+    Note: for text which does not have whitespaces between words, like
+    Chinese, you will have to separate the words first (e.g. using
+    Lingua::ZH::WordSegmenter). The module also currently does not handle
+    whitespace-like characters other than ASCII 32 (for example, the Chinese
+    dot 。).
+
+  mbpad($text, $width[, $which[, $padchar[, $truncate]]]) => STR
+    Return $text padded with $padchar to $width columns. $which is either
+    "r" or "right" for padding on the right (the default if not specified),
+    "l" or "left" for padding on the right, or "c" or "center" or "centre"
+    for left+right padding to center the text.
+
+    $padchar is whitespace if not specified. It should be string having the
+    width of 1 column.
+
+  mbtrunc($text, $width) => STR
+    Truncate $text to $width columns. It uses mbswidth() instead of Perl's
+    length(), so it can handle wide characters.
+
+    Does *not* handle multiple lines.
+
+FAQ
+  How do I truncate or pad to a certain character length (instead of column width)?
+    You can simply use Perl's substr() which works by character.
+
+TODOS
+SEE ALSO
+    Text::CharWidth which provides mbswidth().
+
+    Text::ANSI::Util which can also handle text containing wide characters
+    as well ANSI escape codes.
+
+AUTHOR
+    Steven Haryanto <stevenharyanto@gmail.com>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2013 by Steven Haryanto.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+
