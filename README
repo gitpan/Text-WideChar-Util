@@ -2,7 +2,7 @@ NAME
     Text::WideChar::Util - Routines for text containing wide characters
 
 VERSION
-    version 0.03
+    version 0.04
 
 SYNOPSIS
      use Text::WideChar::Util qw(
@@ -20,8 +20,8 @@ SYNOPSIS
      say mbpad("foo\nbarbaz\n", 10, "center", "."); # => "...foo....\n..barbaz..\n"
 
      # truncate text to a certain column width
-     say mbtrunc("çº¢è²", 2 ); # => "çº¢"
-     say mbtrunc("çº¢è²", 3 ); # => "çº¢"
+     say mbtrunc("çº¢è²",  2); # => "çº¢"
+     say mbtrunc("çº¢è²",  3); # => "çº¢"
      say mbtrunc("çº¢red", 3); # => "çº¢r"
 
 DESCRIPTION
@@ -87,6 +87,10 @@ FUNCTIONS
     Does *not* handle multiple lines.
 
     None are exported by default, but they are exportable.
+
+INTERNAL NOTES
+    Should we wrap at hyphens? Probably not. Both Emacs as well as
+    Text::Wrap do not.
 
 FAQ
   How do I truncate or pad to a certain character length (instead of column width)?

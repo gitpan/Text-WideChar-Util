@@ -19,7 +19,7 @@ our @EXPORT_OK = qw(
                        wrap
                );
 
-our $VERSION = '0.03'; # VERSION
+our $VERSION = '0.04'; # VERSION
 
 sub mbswidth_height {
     my $text = shift;
@@ -85,7 +85,12 @@ sub _wrap {
             # XXX emacs can also treat ' #' as indent, e.g. when wrapping
             # multi-line perl comment.
             ($fli) = $ptext =~ /\A([ \t]*)\S/;
-            $fliw = _get_indent_width($is_mb, $fli, $tw);
+            if (defined $fli) {
+                $fliw = _get_indent_width($is_mb, $fli, $tw);
+            } else {
+                $fli  = "";
+                $fliw = 0;
+            }
         }
         if (defined $optsli) {
             $sli  = $optsli;
@@ -131,6 +136,7 @@ sub _wrap {
 
             for my $word (@words) {
                 my $wordw = shift @wordsw;
+                #say "D:x=$x word=$word wordw=$wordw line_has_word=$line_has_word width=$width";
                 if ($x + ($line_has_word ? 1:0) + $wordw <= $width) {
                     if ($line_has_word) {
                         push @res, " ";
@@ -194,33 +200,42 @@ sub mbpad {
 sub mbtrunc {
     my ($text, $width, $return_width) = @_;
 
+    # return_width (undocumented): if set to 1, will return [truncated_text,
+    # visual width, length(chars) up to truncation point]
+
     my $w = mbswidth($text);
     die "Invalid argument, width must not be negative" unless $width >= 0;
-    return $text if $w <= $width;
+    if ($w <= $width) {
+        return $return_width ? [$text, $w, length($text)] : $text;
+    }
+
+    my $c = 0;
 
     # perform binary cutting
     my @res;
     my $wres = 0; # total width of text in @res
     my $l = int($w/2); $l = 1 if $l == 0;
-    my $end;
+    my $end = 0;
     while (1) {
         my $left  = substr($text, 0, $l);
         my $right = $l > length($text) ? "" : substr($text, $l);
         my $wl = mbswidth($left);
-        #say "D: left=$left, right=$right, wl=$wl";
+        #say "D:left=$left, right=$right, wl=$wl";
         if ($wres + $wl > $width) {
             $text = $left;
         } else {
             push @res, $left;
             $wres += $wl;
+            $c += length($left);
             $text = $right;
         }
         $l = int(($l+1)/2);
-        last if $l==1 && $end;
+        #say "D:l=$l";
+        last if $l==1 && $end>1;
         $end++ if $l==1;
     }
     if ($return_width) {
-        return [join("", @res), $wres];
+        return [join("", @res), $wres, $c];
     } else {
         return join("", @res);
     }
@@ -239,7 +254,7 @@ Text::WideChar::Util - Routines for text containing wide characters
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
@@ -258,8 +273,8 @@ version 0.03
  say mbpad("foo\nbarbaz\n", 10, "center", "."); # => "...foo....\n..barbaz..\n"
 
  # truncate text to a certain column width
- say mbtrunc("红色", 2 ); # => "红"
- say mbtrunc("红色", 3 ); # => "红"
+ say mbtrunc("红色",  2); # => "红"
+ say mbtrunc("红色",  3); # => "红"
  say mbtrunc("红red", 3); # => "红r"
 
 =head1 DESCRIPTION
@@ -335,6 +350,11 @@ Does *not* handle multiple lines.
 
 
 None are exported by default, but they are exportable.
+
+=head1 INTERNAL NOTES
+
+Should we wrap at hyphens? Probably not. Both Emacs as well as Text::Wrap do
+not.
 
 =head1 FAQ
 
