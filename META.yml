@@ -20,4 +20,4 @@ requires:
 resources:
   homepage: http://metacpan.org/release/Text-WideChar-Util
   repository: http://github.com/sharyanto/perl-Text-WideChar-Util
-version: 0.04
+version: 0.05

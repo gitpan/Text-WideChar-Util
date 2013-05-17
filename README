@@ -2,7 +2,7 @@ NAME
     Text::WideChar::Util - Routines for text containing wide characters
 
 VERSION
-    version 0.04
+    version 0.05
 
 SYNOPSIS
      use Text::WideChar::Util qw(
@@ -57,6 +57,12 @@ FUNCTIONS
         Subsequent line indent. If unspecified, will be deduced from the
         second line of text, or if unavailable, will default to empty string
         ("").
+
+    *   return_stats => BOOL (default: 0)
+
+        If set to true, then instead of returning the wrapped string,
+        function will return "[$wrapped, $stats]" where $stats is a hash
+        containing some information like "max_word_width", "min_word_width".
 
     Performance: ~2300/s on my Core i5-2400 3.1GHz desktop for a ~1KB of
     text.

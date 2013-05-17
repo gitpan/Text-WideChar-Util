@@ -19,7 +19,7 @@ our @EXPORT_OK = qw(
                        wrap
                );
 
-our $VERSION = '0.04'; # VERSION
+our $VERSION = '0.05'; # VERSION
 
 sub mbswidth_height {
     my $text = shift;
@@ -70,6 +70,8 @@ sub _wrap {
 
     my @para = split /(\n(?:[ \t]*\n)+)/, $text;
 
+    my ($maxww, $minww);
+
   PARA:
     while (my ($ptext, $pbreak) = splice @para, 0, 2) {
         my $x = 0;
@@ -115,6 +117,7 @@ sub _wrap {
             my @wordsw;
             while (1) {
                 my $wordw = $is_mb ? mbswidth($word0) : length($word0);
+
                 if ($wordw <= $width-$sliw) {
                     push @words , $word0;
                     push @wordsw, $wordw;
@@ -137,6 +140,10 @@ sub _wrap {
             for my $word (@words) {
                 my $wordw = shift @wordsw;
                 #say "D:x=$x word=$word wordw=$wordw line_has_word=$line_has_word width=$width";
+
+                $maxww = $wordw if !defined($maxww) || $maxww < $wordw;
+                $minww = $wordw if !defined($minww) || $minww > $wordw;
+
                 if ($x + ($line_has_word ? 1:0) + $wordw <= $width) {
                     if ($line_has_word) {
                         push @res, " ";
@@ -160,7 +167,14 @@ sub _wrap {
         }
     }
 
-    join "", @res;
+    if ($opts->{return_stats}) {
+        return [join("", @res), {
+            max_word_width => $maxww,
+            min_word_width => $minww,
+        }];
+    } else {
+        return join("", @res);
+    }
 }
 
 sub mbwrap {
@@ -254,7 +268,7 @@ Text::WideChar::Util - Routines for text containing wide characters
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 SYNOPSIS
 
@@ -315,6 +329,12 @@ First line indent. If unspecified, will be deduced from the first line of text.
 
 Subsequent line indent. If unspecified, will be deduced from the second line of
 text, or if unavailable, will default to empty string (C<"">).
+
+=item * return_stats => BOOL (default: 0)
+
+If set to true, then instead of returning the wrapped string, function will
+return C<< [$wrapped, $stats] >> where C<$stats> is a hash containing some
+information like C<max_word_width>, C<min_word_width>.
 
 =back
 
