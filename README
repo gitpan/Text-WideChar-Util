@@ -2,11 +2,11 @@ NAME
     Text::WideChar::Util - Routines for text containing wide characters
 
 VERSION
-    version 0.05
+    version 0.06
 
 SYNOPSIS
      use Text::WideChar::Util qw(
-         mbpad mbswidth_height mbtrunc mbwrap wrap);
+         mbpad pad mbswidth_height mbtrunc trunc mbwrap wrap);
 
      # get width as well as number of lines
      say mbswidth_height("red\nçº¢è²"); # => [4, 2]
@@ -86,21 +86,22 @@ FUNCTIONS
     $padchar is whitespace if not specified. It should be string having the
     width of 1 column.
 
+  pad($text, $width[, $which[, $padchar[, $truncate]]]) => STR
+    The non-wide version of mbpad(), just like in mbwrap() vs wrap().
+
   mbtrunc($text, $width) => STR
     Truncate $text to $width columns. It uses mbswidth() instead of Perl's
     length(), so it can handle wide characters.
 
     Does *not* handle multiple lines.
 
-    None are exported by default, but they are exportable.
+  trunc($text, $width) => STR
+    The non-wide version of mbtrunc(), just like in mbwrap() vs wrap(). This
+    is actually not much more than Perl's "substr($text, 0, $width)".
 
 INTERNAL NOTES
     Should we wrap at hyphens? Probably not. Both Emacs as well as
     Text::Wrap do not.
-
-FAQ
-  How do I truncate or pad to a certain character length (instead of column width)?
-    You can simply use Perl's substr() which works by character.
 
 TODOS
 SEE ALSO
