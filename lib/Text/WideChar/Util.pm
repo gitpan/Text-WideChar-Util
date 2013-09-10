@@ -7,13 +7,14 @@ use utf8;
 use warnings;
 
 use List::Util qw(max);
-use Text::CharWidth qw(mbswidth mbwidth);
+use Unicode::GCString;
 
 require Exporter;
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(
                        mbpad
                        pad
+                       mbswidth
                        mbswidth_height
                        mbtrunc
                        trunc
@@ -21,7 +22,11 @@ our @EXPORT_OK = qw(
                        wrap
                );
 
-our $VERSION = '0.06'; # VERSION
+our $VERSION = '0.07'; # VERSION
+
+sub mbswidth {
+    Unicode::GCString->new($_[0])->columns;
+}
 
 sub mbswidth_height {
     my $text = shift;
@@ -46,7 +51,7 @@ sub _get_indent_width {
             # go to the next tab
             $w = $tab_width * (int($w/$tab_width) + 1);
         } else {
-            $w += $is_mb ? mbwidth($_) : 1;
+            $w += $is_mb ? mbswidth($_) : 1;
         }
     }
     $w;
@@ -276,8 +281,8 @@ sub trunc {
 1;
 # ABSTRACT: Routines for text containing wide characters
 
-
 __END__
+
 =pod
 
 =head1 NAME
@@ -286,12 +291,12 @@ Text::WideChar::Util - Routines for text containing wide characters
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
  use Text::WideChar::Util qw(
-     mbpad pad mbswidth_height mbtrunc trunc mbwrap wrap);
+     mbpad pad mbswidth mbswidth_height mbtrunc trunc mbwrap wrap);
 
  # get width as well as number of lines
  say mbswidth_height("red\n红色"); # => [4, 2]
@@ -318,10 +323,15 @@ This module provides routines for dealing with text containing wide characters
 
 =head1 FUNCTIONS
 
+=head2 mbswidth($text) => INT
+
+Like L<Text::CharWidth>'s mbswidth(), except implemented using L<<
+Unicode::GCString->new($text)->columns >>.
+
 =head2 mbswidth_height($text) => [INT, INT]
 
-Like L<Text::CharWidth>'s mbswidth(), but also gives height (number of lines).
-For example, C<< mbswidth_height("foobar\nb\n") >> gives [6, 3].
+Like mbswidth(), but also gives height (number of lines). For example, C<<
+mbswidth_height("foobar\nb\n") >> gives [6, 3].
 
 =head2 mbwrap($text, $width, \%opts) => STR
 
@@ -356,7 +366,7 @@ information like C<max_word_width>, C<min_word_width>.
 
 =back
 
-Performance: ~2300/s on my Core i5-2400 3.1GHz desktop for a ~1KB of text.
+Performance: ~650/s on my Core i5 1.7GHz laptop for a 1KB of text.
 
 =head2 wrap($text, $width, \%opts) => STR
 
@@ -366,8 +376,8 @@ but with a different behaviour. This module's wrap() can reflow newline and its
 behavior is more akin to Emacs (try reflowing a paragraph in Emacs using
 C<M-q>).
 
-Performance: ~3100/s on my Core i5-2400 3.1GHz desktop for a ~1KB of text.
-Text::Wrap::wrap() on the other hand can go ~3800/s.
+Performance: ~2000/s on my Core i5 1.7GHz laptop for a ~1KB of text.
+Text::Wrap::wrap() on the other hand is ~2500/s.
 
 =head2 mbpad($text, $width[, $which[, $padchar[, $truncate]]]) => STR
 
@@ -395,6 +405,9 @@ Does *not* handle multiple lines.
 The non-wide version of mbtrunc(), just like in mbwrap() vs wrap(). This is
 actually not much more than Perl's C<< substr($text, 0, $width) >>.
 
+
+None are exported by default, but they are exportable.
+
 =head1 INTERNAL NOTES
 
 Should we wrap at hyphens? Probably not. Both Emacs as well as Text::Wrap do
@@ -408,7 +421,10 @@ not.
 
 =head1 SEE ALSO
 
-L<Text::CharWidth> which provides mbswidth().
+L<Unicode::GCString> which is consulted for visual width of characters.
+L<Text::CharWidth> is about 2.5x faster but it gives weird results (-1 for
+characters like "\n" and "\t") and my Strawberry Perl installation fails to
+build it.
 
 L<Text::ANSI::Util> which can also handle text containing wide characters as
 well ANSI escape codes.
@@ -425,4 +441,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

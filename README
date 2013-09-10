@@ -2,11 +2,11 @@ NAME
     Text::WideChar::Util - Routines for text containing wide characters
 
 VERSION
-    version 0.06
+    version 0.07
 
 SYNOPSIS
      use Text::WideChar::Util qw(
-         mbpad pad mbswidth_height mbtrunc trunc mbwrap wrap);
+         mbpad pad mbswidth mbswidth_height mbtrunc trunc mbwrap wrap);
 
      # get width as well as number of lines
      say mbswidth_height("red\nçº¢è²"); # => [4, 2]
@@ -30,9 +30,13 @@ DESCRIPTION
     terminal).
 
 FUNCTIONS
+  mbswidth($text) => INT
+    Like Text::CharWidth's mbswidth(), except implemented using
+    Unicode::GCString->new($text)->columns.
+
   mbswidth_height($text) => [INT, INT]
-    Like Text::CharWidth's mbswidth(), but also gives height (number of
-    lines). For example, "mbswidth_height("foobar\nb\n")" gives [6, 3].
+    Like mbswidth(), but also gives height (number of lines). For example,
+    "mbswidth_height("foobar\nb\n")" gives [6, 3].
 
   mbwrap($text, $width, \%opts) => STR
     Wrap $text to $width columns. It uses mbswidth() instead of Perl's
@@ -64,8 +68,7 @@ FUNCTIONS
         function will return "[$wrapped, $stats]" where $stats is a hash
         containing some information like "max_word_width", "min_word_width".
 
-    Performance: ~2300/s on my Core i5-2400 3.1GHz desktop for a ~1KB of
-    text.
+    Performance: ~650/s on my Core i5 1.7GHz laptop for a 1KB of text.
 
   wrap($text, $width, \%opts) => STR
     Like mbwrap(), but uses character-based length() instead of column
@@ -74,8 +77,8 @@ FUNCTIONS
     can reflow newline and its behavior is more akin to Emacs (try reflowing
     a paragraph in Emacs using "M-q").
 
-    Performance: ~3100/s on my Core i5-2400 3.1GHz desktop for a ~1KB of
-    text. Text::Wrap::wrap() on the other hand can go ~3800/s.
+    Performance: ~2000/s on my Core i5 1.7GHz laptop for a ~1KB of text.
+    Text::Wrap::wrap() on the other hand is ~2500/s.
 
   mbpad($text, $width[, $which[, $padchar[, $truncate]]]) => STR
     Return $text padded with $padchar to $width columns. $which is either
@@ -99,13 +102,18 @@ FUNCTIONS
     The non-wide version of mbtrunc(), just like in mbwrap() vs wrap(). This
     is actually not much more than Perl's "substr($text, 0, $width)".
 
+    None are exported by default, but they are exportable.
+
 INTERNAL NOTES
     Should we wrap at hyphens? Probably not. Both Emacs as well as
     Text::Wrap do not.
 
 TODOS
 SEE ALSO
-    Text::CharWidth which provides mbswidth().
+    Unicode::GCString which is consulted for visual width of characters.
+    Text::CharWidth is about 2.5x faster but it gives weird results (-1 for
+    characters like "\n" and "\t") and my Strawberry Perl installation fails
+    to build it.
 
     Text::ANSI::Util which can also handle text containing wide characters
     as well ANSI escape codes.

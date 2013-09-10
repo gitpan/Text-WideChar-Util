@@ -3,21 +3,22 @@ abstract: 'Routines for text containing wide characters'
 author:
   - 'Steven Haryanto <stevenharyanto@gmail.com>'
 build_requires:
-  Module::Build: 0.3601
+  Capture::Tiny: 0
   Test::More: 0.98
+  blib: 0
 configure_requires:
-  Module::Build: 0.3601
+  ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300015, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.132140'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: Text-WideChar-Util
 requires:
-  Text::CharWidth: 0
+  Unicode::GCString: 0
   perl: 5.010001
 resources:
   homepage: http://metacpan.org/release/Text-WideChar-Util
   repository: http://github.com/sharyanto/perl-Text-WideChar-Util
-version: 0.06
+version: 0.07
