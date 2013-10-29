@@ -22,7 +22,7 @@ our @EXPORT_OK = qw(
                        wrap
                );
 
-our $VERSION = '0.07'; # VERSION
+our $VERSION = '0.08'; # VERSION
 
 sub mbswidth {
     Unicode::GCString->new($_[0])->columns;
@@ -285,13 +285,11 @@ __END__
 
 =pod
 
+=encoding utf-8
+
 =head1 NAME
 
 Text::WideChar::Util - Routines for text containing wide characters
-
-=head1 VERSION
-
-version 0.07
 
 =head1 SYNOPSIS
 
@@ -318,8 +316,6 @@ version 0.07
 
 This module provides routines for dealing with text containing wide characters
 (wide meaning occupying more than 1 column width in terminal).
-
-=encoding utf8
 
 =head1 FUNCTIONS
 
@@ -405,9 +401,6 @@ Does *not* handle multiple lines.
 The non-wide version of mbtrunc(), just like in mbwrap() vs wrap(). This is
 actually not much more than Perl's C<< substr($text, 0, $width) >>.
 
-
-None are exported by default, but they are exportable.
-
 =head1 INTERNAL NOTES
 
 Should we wrap at hyphens? Probably not. Both Emacs as well as Text::Wrap do
@@ -428,6 +421,23 @@ build it.
 
 L<Text::ANSI::Util> which can also handle text containing wide characters as
 well ANSI escape codes.
+
+=head1 HOMEPAGE
+
+Please visit the project's homepage at L<https://metacpan.org/release/Text-WideChar-Util>.
+
+=head1 SOURCE
+
+Source repository is at L<https://github.com/sharyanto/perl-Text-WideChar-Util>.
+
+=head1 BUGS
+
+Please report any bugs or feature requests on the bugtracker website
+http://rt.cpan.org/Public/Dist/Display.html?Name=Text-WideChar-Util
+
+When submitting a bug or request, please include a test-file or a
+patch to an existing test-file that illustrates the bug or desired
+feature.
 
 =head1 AUTHOR
 

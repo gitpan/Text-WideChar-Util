@@ -1,9 +1,6 @@
 NAME
     Text::WideChar::Util - Routines for text containing wide characters
 
-VERSION
-    version 0.07
-
 SYNOPSIS
      use Text::WideChar::Util qw(
          mbpad pad mbswidth mbswidth_height mbtrunc trunc mbwrap wrap);
@@ -102,8 +99,6 @@ FUNCTIONS
     The non-wide version of mbtrunc(), just like in mbwrap() vs wrap(). This
     is actually not much more than Perl's "substr($text, 0, $width)".
 
-    None are exported by default, but they are exportable.
-
 INTERNAL NOTES
     Should we wrap at hyphens? Probably not. Both Emacs as well as
     Text::Wrap do not.
@@ -117,6 +112,21 @@ SEE ALSO
 
     Text::ANSI::Util which can also handle text containing wide characters
     as well ANSI escape codes.
+
+HOMEPAGE
+    Please visit the project's homepage at
+    <https://metacpan.org/release/Text-WideChar-Util>.
+
+SOURCE
+    Source repository is at
+    <https://github.com/sharyanto/perl-Text-WideChar-Util>.
+
+BUGS
+    Please report any bugs or feature requests on the bugtracker website
+    http://rt.cpan.org/Public/Dist/Display.html?Name=Text-WideChar-Util
+
+    When submitting a bug or request, please include a test-file or a patch
+    to an existing test-file that illustrates the bug or desired feature.
 
 AUTHOR
     Steven Haryanto <stevenharyanto@gmail.com>
