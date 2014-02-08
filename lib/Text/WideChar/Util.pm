@@ -22,7 +22,7 @@ our @EXPORT_OK = qw(
                        wrap
                );
 
-our $VERSION = '0.09'; # VERSION
+our $VERSION = '0.10'; # VERSION
 
 sub mbswidth {
     Unicode::GCString->new($_[0])->columns;
@@ -57,45 +57,45 @@ sub _get_indent_width {
     $w;
 }
 
-my $re_cjk = qr/(?:
-                 \p{Block=CJK_Compatibility}
-             |   \p{Block=CJK_Compatibility_Forms}
-             |   \p{Block=CJK_Compatibility_Ideographs}
-             |   \p{Block=CJK_Compatibility_Ideographs_Supplement}
-             |   \p{Block=CJK_Radicals_Supplement}
-             |   \p{Block=CJK_Strokes}
-             |   \p{Block=CJK_Symbols_And_Punctuation}
-             |   \p{Block=CJK_Unified_Ideographs}
-             |   \p{Block=CJK_Unified_Ideographs_Extension_A}
-             |   \p{Block=CJK_Unified_Ideographs_Extension_B}
-             #|   \p{Block=CJK_Unified_Ideographs_Extension_C}
-             [，。]
-             )/x;
-my $re_cjk_class = qr/[
-                          \p{Block=CJK_Compatibility}
-                          \p{Block=CJK_Compatibility_Forms}
-                          \p{Block=CJK_Compatibility_Ideographs}
-                          \p{Block=CJK_Compatibility_Ideographs_Supplement}
-                          \p{Block=CJK_Radicals_Supplement}
-                          \p{Block=CJK_Strokes}
-                          \p{Block=CJK_Symbols_And_Punctuation}
-                          \p{Block=CJK_Unified_Ideographs}
-                          \p{Block=CJK_Unified_Ideographs_Extension_A}
-                          \p{Block=CJK_Unified_Ideographs_Extension_B}
-                          ，。
+our $re_cjk = qr/(?:
+                     \p{Block=CJK_Compatibility}
+                 |   \p{Block=CJK_Compatibility_Forms}
+                 |   \p{Block=CJK_Compatibility_Ideographs}
+                 |   \p{Block=CJK_Compatibility_Ideographs_Supplement}
+                 |   \p{Block=CJK_Radicals_Supplement}
+                 |   \p{Block=CJK_Strokes}
+                 |   \p{Block=CJK_Symbols_And_Punctuation}
+                 |   \p{Block=CJK_Unified_Ideographs}
+                 |   \p{Block=CJK_Unified_Ideographs_Extension_A}
+                 |   \p{Block=CJK_Unified_Ideographs_Extension_B}
+                     #|   \p{Block=CJK_Unified_Ideographs_Extension_C}
+                     [，。]
+                 )/x;
+our $re_cjk_class = qr/[
+                           \p{Block=CJK_Compatibility}
+                           \p{Block=CJK_Compatibility_Forms}
+                           \p{Block=CJK_Compatibility_Ideographs}
+                           \p{Block=CJK_Compatibility_Ideographs_Supplement}
+                           \p{Block=CJK_Radicals_Supplement}
+                           \p{Block=CJK_Strokes}
+                           \p{Block=CJK_Symbols_And_Punctuation}
+                           \p{Block=CJK_Unified_Ideographs}
+                           \p{Block=CJK_Unified_Ideographs_Extension_A}
+                           \p{Block=CJK_Unified_Ideographs_Extension_B}
+                           ，。
                       ]/x;
-my $re_cjk_negclass = qr/[^
-                             \p{Block=CJK_Compatibility}
-                             \p{Block=CJK_Compatibility_Forms}
-                             \p{Block=CJK_Compatibility_Ideographs}
-                             \p{Block=CJK_Compatibility_Ideographs_Supplement}
-                             \p{Block=CJK_Radicals_Supplement}
-                             \p{Block=CJK_Strokes}
-                             \p{Block=CJK_Symbols_And_Punctuation}
-                             \p{Block=CJK_Unified_Ideographs}
-                             \p{Block=CJK_Unified_Ideographs_Extension_A}
-                             \p{Block=CJK_Unified_Ideographs_Extension_B}
-                             ，。
+our $re_cjk_negclass = qr/[^
+                              \p{Block=CJK_Compatibility}
+                              \p{Block=CJK_Compatibility_Forms}
+                              \p{Block=CJK_Compatibility_Ideographs}
+                              \p{Block=CJK_Compatibility_Ideographs_Supplement}
+                              \p{Block=CJK_Radicals_Supplement}
+                              \p{Block=CJK_Strokes}
+                              \p{Block=CJK_Symbols_And_Punctuation}
+                              \p{Block=CJK_Unified_Ideographs}
+                              \p{Block=CJK_Unified_Ideographs_Extension_A}
+                              \p{Block=CJK_Unified_Ideographs_Extension_B}
+                              ，。
                       ]/x;
 
 sub _wrap {
@@ -376,7 +376,7 @@ Text::WideChar::Util - Routines for text containing wide characters
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 

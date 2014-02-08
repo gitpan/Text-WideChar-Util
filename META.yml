@@ -23,7 +23,7 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Text-WideChar-Util
   homepage: https://metacpan.org/release/Text-WideChar-Util
   repository: git://github.com/sharyanto/perl-Text-WideChar-Util.git
-version: '0.09'
+version: '0.10'
 x_Dist_Zilla:
   perl:
     version: '5.010001'
