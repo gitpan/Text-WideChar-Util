@@ -54,10 +54,10 @@
          "web" : "https://github.com/sharyanto/perl-Text-WideChar-Util"
       }
    },
-   "version" : "0.10",
+   "version" : "0.11",
    "x_Dist_Zilla" : {
       "perl" : {
-         "version" : "5.010001"
+         "version" : "5.018002"
       },
       "plugins" : [
          {

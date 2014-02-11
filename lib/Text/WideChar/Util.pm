@@ -22,7 +22,7 @@ our @EXPORT_OK = qw(
                        wrap
                );
 
-our $VERSION = '0.10'; # VERSION
+our $VERSION = '0.11'; # VERSION
 
 sub mbswidth {
     Unicode::GCString->new($_[0])->columns;
@@ -161,8 +161,12 @@ sub _wrap {
         $x += $fliw;
 
         my @words0; # (WORD1, WORD1_IS_CJK?, WS_AFTER?, WORD2, WORD2_IS_CJK?, WS_AFTER?, ...)
-        # we break CJK per letter because they don't use whitespace between
-        # words
+        # we differentiate/split between CJK "word" (cluster of CJK letters,
+        # really) and non-CJK word, e.g. "我很爱你my可爱的and beautiful,
+        # beautiful wife" is split to ["我很爱你", "my", "可爱的", "and",
+        # "beautiful,", "beautiful", "wife"]. we do this because CJK word can be
+        # line-broken on a per-letter basis, as they don't separate words with
+        # whitespaces.
         while ($ptext =~ /(?: ($re_cjk+)|(\S+) ) (\s*)/gox) {
             my $ws_after = $3 ? 1:0;
             if ($1) {
@@ -190,7 +194,9 @@ sub _wrap {
             while (1) {
                 my $wordw = $is_mb ? mbswidth($word0) : length($word0);
 
-                if ($wordw <= $width-$sliw) {
+                # long cjk word is not truncated here because it will be
+                # line-broken later when wrapping.
+                if ($wordw <= $width-$sliw || $is_cjk) {
                     push @words , $word0;
                     push @wordsw, $wordw;
                     last;
@@ -230,20 +236,30 @@ sub _wrap {
                     push @res, $word;
                     $x += $wordw;
                 } else {
-                    if ($is_cjk) {
-                        # CJK word can be broken
-                        my $res = mbtrunc($word, $width - $x, 1);
-                        push @res, $res->[0];
-                        my $word2 = substr($word, length($res->[0]));
-                        #say "D:truncated CJK word: $word -> $res->[0] & $res->[1], remaining=$word2";
-                        $word = $word2;
-                        $wordw = mbswidth($word);
-                    }
+                    while (1) {
+                        if ($is_cjk) {
+                            # CJK word can be broken
+                            my $res = mbtrunc($word, $width - $x, 1);
+                            push @res, $res->[0];
+                            my $word2 = substr($word, length($res->[0]));
+                            #say "D:truncated CJK word: $word -> $res->[0] & $res->[1], remaining=$word2";
+                            $word = $word2;
+                            $wordw = mbswidth($word);
+                        }
 
-                    # move the word to the next line
-                    push @res, "\n", $sli, $word;
-                    $x = $sliw + $wordw;
-                    $y++;
+                        # move the word to the next line
+                        push @res, "\n", $sli;
+                        $y++;
+
+                        if ($sliw + $wordw <= $width) {
+                            push @res, $word;
+                            $x = $sliw + $wordw;
+                            last;
+                        } else {
+                            # still too long, truncate again
+                            $x = $sliw;
+                        }
+                    }
                 }
                 $line_has_word++;
             }
@@ -376,7 +392,7 @@ Text::WideChar::Util - Routines for text containing wide characters
 
 =head1 VERSION
 
-version 0.10
+version 0.11
 
 =head1 SYNOPSIS
 
