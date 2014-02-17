@@ -2,7 +2,7 @@ NAME
     Text::WideChar::Util - Routines for text containing wide characters
 
 VERSION
-    version 0.12
+    version 0.13
 
 SYNOPSIS
      use Text::WideChar::Util qw(
@@ -37,6 +37,10 @@ FUNCTIONS
   mbswidth_height($text) => [INT, INT]
     Like mbswidth(), but also gives height (number of lines). For example,
     "mbswidth_height("foobar\nb\n")" gives [6, 3].
+
+  length_height($text) => [INT, INT]
+    This is the non-wide version of mbswidth_height() and can be used if
+    your text only contains printable ASCII characters and newlines.
 
   mbwrap($text, $width, \%opts) => STR
     Wrap $text to $width columns. It uses mbswidth() instead of Perl's
