@@ -1,5 +1,8 @@
 package Text::WideChar::Util;
 
+our $DATE = '2015-01-03'; # DATE
+our $VERSION = '0.14'; # VERSION
+
 use 5.010001;
 use locale;
 use strict;
@@ -21,8 +24,6 @@ our @EXPORT_OK = qw(
                        mbwrap
                        wrap
                );
-
-our $VERSION = '0.13'; # VERSION
 
 sub mbswidth {
     Unicode::GCString->new($_[0])->columns;
@@ -415,7 +416,7 @@ Text::WideChar::Util - Routines for text containing wide characters
 
 =head1 VERSION
 
-version 0.13
+This document describes version 0.14 of Text::WideChar::Util (from Perl distribution Text-WideChar-Util), released on 2015-01-03.
 
 =head1 SYNOPSIS
 
@@ -539,12 +540,6 @@ actually not much more than Perl's C<< substr($text, 0, $width) >>.
 Should we wrap at hyphens? Probably not. Both Emacs as well as Text::Wrap do
 not.
 
-=head1 TODOS
-
-=over
-
-=back
-
 =head1 SEE ALSO
 
 L<Unicode::GCString> which is consulted for visual width of characters.
@@ -577,11 +572,11 @@ feature.
 
 =head1 AUTHOR
 
-Steven Haryanto <stevenharyanto@gmail.com>
+perlancar <perlancar@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2014 by Steven Haryanto.
+This software is copyright (c) 2015 by perlancar@cpan.org.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
